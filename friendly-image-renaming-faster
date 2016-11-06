@@ -26,6 +26,8 @@ dat = C:\MAME\dats\MAME 078.dat
 ;### local path to a MAME ROM database file
 ;### DAT files for current and past MAME releases are available at http://www.progettosnaps.net/dats/
 
+;### TIP: If you're renaming Snaps, Titles, and Boxart thumbnails, it is possible to make three copies of this script,
+;### point the folder paths at the other image types, and run all at once.
 
 if !FileExist(dat) or !FileExist(artsource) or !FileExist(destinationfolder)
 	return 	;### If any of these files and folders desn't exist, exit the script
@@ -47,7 +49,7 @@ Loop, %artsource%\*.png {
 	
 	if !fancyname
 	{
-    fancyname := filename   		;### the image filename/rom name is not matched in the dat file
+		fancyname := filename   	;### the image filename/rom name is not matched in the dat file
  		FileAppend, Unmatched Source %artsource%\%filename%.png`n`n, %destinationfolder%\Unmatched Thumbnails.log  ;### for error checking
 		continue 			;### then skip to the next image
 	}
@@ -68,9 +70,5 @@ Loop, %artsource%\*.png {
 	fancyname := StrReplace(fancyname, "|", "_")
 
 	destinationfile := destinationfolder . "`\" . fancyname . ".png"
-;	if FileExist(destinationfile)
-;	{ 
-;	continue	;### skip onward if this file already exists
-;	}	
 	FileCopy, %artsource%\%filename%.png, %destinationfile% , 1
 }
