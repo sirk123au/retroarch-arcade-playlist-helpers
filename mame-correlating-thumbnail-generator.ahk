@@ -36,23 +36,23 @@ forceUnixPath = :/			;### For an ugly fix later
 c = 2
 Loop, Read, %play%
 {
-if (a_index == c-1)        			;rom file path line
+if (a_index == c-1)        		;### rom file path line
     filepath := A_LoopReadLine  
-else if (a_index == c)            	;rom name line
+else if (a_index == c)            	;### rom name line
 	{
 	name := A_LoopReadLine 
 	
 	unixpath := forceUnixPath . filepath
 	SplitPath, unixpath, , , , OutNameNoExt
 	
-    ifexist %artsource%\%OutNameNoExt%.png
+	ifexist %artsource%\%OutNameNoExt%.png
 	{
 		FileCopy, %artsource%\%OutNameNoExt%.png, %processed%`\%name%.png , 1
 	} 
-	else
+	else   		 		;### create a log of unmatched entries for error checking
 	{
-		FileAppend, Missing Source: %artsource%\%OutNameNoExt%.png `nDestination: %processed%\%name%.png`n`n, Unmatched Thumbnails - %play%.log  		 ;for error checking
+		FileAppend, Missing Source: %artsource%\%OutNameNoExt%.png `nDestination: %processed%\%name%.png`n`n, Unmatched Thumbnails - %play%.log
 	}
-    c := c + 6
+    c := c + 6				;skip six lines to the next playlist entry
     }
 }
