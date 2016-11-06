@@ -10,20 +10,20 @@ SetWorkingDir %A_ScriptDir%  	; Ensures a consistent starting directory.
 
 ;### SETUP: ADD YOUR PATHS HERE
 
-artsource = C:\MAME 0.78 images\titles
+artsource = C:\MAME Roms\~Snaps
 ;### NOTE: THIS FOLDER MUST EXIST BEFORE THE SCRIPT IS EXECUTED
 ;### Path to the source thumbnails folder on the local machine
 ;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THE PATH
 ;### Example: C:\MAME 0.78 images\titles
 
-destinationfolder = C:\MAME 0.78 images\Named_Titles
+destinationfolder = C:\MAME Roms\~SnapsFriendly
 ;### NOTE: THIS FOLDER MUST EXIST BEFORE THE SCRIPT IS EXECUTED
 ;### Path to the destination thumbnail folder on the local machine
 ;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THE PATH
 ;### Example C:\MAME 0.78 images\Named_Titles
 
-dat = C:\MAME\dats\MAME 078.dat
-;### Example: C:\MAME\dats\MAME 078.dat
+dat = C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
+;### Example: C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
 ;### local path to a MAME ROM database file
 ;### The most recent MAME DAT can be found here  http://www.emulab.it/rommanager/datfiles.php
 ;### DAT files for current and past MAME releases are available at http://www.progettosnaps.net/dats/
