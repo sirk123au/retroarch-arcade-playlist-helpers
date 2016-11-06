@@ -1,4 +1,5 @@
 ;### AUTOHOTKEY SCRIPT TO RENAME ARCADE THUMBNAILS FOR RETROARCH
+;### Based on prior work by libretro forum users roldmort, Tetsuya79, Alexandra, and markwkidd
 
 ;---------------------------------------------------------------------------------------------------------
 #NoEnv  			; Recommended for performance and compatibility with future AutoHotkey releases.
