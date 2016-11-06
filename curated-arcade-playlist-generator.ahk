@@ -51,73 +51,72 @@ dat = C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
 ;### path to a MAME ROM database file
 ;### example C:\files\MAME - ROMs (v0.164_XML).dat
 ;### get dat here http://www.emulab.it/rommanager/datfiles.php
+;### or here http://www.progettosnaps.net/dats/
 
-FileSetAttrib, -R, %RAPath%\%RAPlayFold%\%Playlist%.lpl ; remove read-only attrib from existing playlist file
-FileDelete, %RAPath%\%RAPlayFold%\%Playlist%.lpl        ; clear existing playlist file
+playlistfilename = %RAPath%\%RAPlayFold%\%Playlist%.lpl
+
+FileSetAttrib, -R, %playlistfilename% ; remove read-only attrib from existing playlist file
+FileDelete, %playlistfilename%        ; clear existing playlist file
 FileCreateDir, %RAPath%\%RAThumbFold%\%Playlist%\Named_Snaps  ; create thumbnail folder
 FileCreateDir, %RAPath%\%RAThumbFold%\%Playlist%\Named_Titles ; create thumbnail folder
 FileCreateDir, %RAPath%\%RAThumbFold%\%Playlist%\Named_Boxarts ; create thumbnail folder
 FileRead, dat, %dat%
 
-Loop, %content%\*.zip
+playlistfile := FileOpen(playlistfilename,"a") ;### Creates new playlist in 'append' mode
+
+ROMFileList :=  ; Initialize to be blank.
+Loop, Files, %content%\*.zip 
 {
-if A_LoopFileName in neogeo.zip,awbios.zip,cpzn2.zip,qsound.zip
- continue 
-;### you can add names of zip files in the folder to skip in the list above
+    ROMFileList = %ROMFileList%%A_LoopFileName%`n	;### store list of ROMs in memory for searching
+}
+Sort, ROMFileList
 
-name := SubStr(A_LoopFileName,1,-4) ;trim .zip
+Loop, Parse, ROMFileList, `n 
+{	
+			
+	if A_LoopField = 
+		continue 	;### continue on blank line (sometimes the last line in the file list)
+	if A_LoopField in (neogeo.zip,awbios.zip,cpzn2.zip)
+		continue    ;### manually skip these bios files. you can add names of other files to skip
 
-needle2 = <game name=.%name%. (isbios|isdevice|ismechanical)
-if RegExMatch(dat, needle2) 
- continue
+	SplitPath, A_LoopField,,,,filename	 ;### trim the file extension from the name
+	
+	filter1 = <game name=.%filename%. (isbios|isdevice)
+	if RegExMatch(dat, filter1)
+		continue                    ;### skip if the file listed as a BIOS or device in the dat
+    
+    needle = <game name=.%filename%.(?:| ismechanical=.*)(?:| sourcefile=.*)(?:| cloneof=.*)(?:|  romof=.*)>\R\s*<description>(.*)</description>
+    RegExMatch(dat, needle, datname)
 
-needle = <game name=.%name%.(?:| ismechanical=.*)(?:| cloneof=.*)(?:| romof=.*)>\R\s*<description>(.*)</description>
-RegExMatch(dat, needle, datname)
-
-fancyname := datname1	;### extract match #1 from the RegExMatch result
-if !fancyname
-        fancyname := filename   ;### the file is not matched in the dat file, use the filename instead
+	fancyname := datname1	;### extract match #1 from the RegExMatch result
+    if !fancyname
+	fancyname := filename ;### the file is not matched in the dat file, use the filename instead
         
-;### Replace characters unsafe for cross-platform filenames with underscore, 
-;### per RetroArch thumbnail/playlist convention
-fancyname := StrReplace(fancyname, "&apos;", "'")
-fancyname := StrReplace(fancyname, "&amp;", "_")
-fancyname := StrReplace(fancyname, "&", "_")
-fancyname := StrReplace(fancyname, "\", "_")
-fancyname := StrReplace(fancyname, "/", "_")
-fancyname := StrReplace(fancyname, "?", "_")
-fancyname := StrReplace(fancyname, ":", "_")
-fancyname := StrReplace(fancyname, "<", "_")
-fancyname := StrReplace(fancyname, ">", "_")
-fancyname := StrReplace(fancyname, ":", "_")
-fancyname := StrReplace(fancyname, "*", "_")
-fancyname := StrReplace(fancyname, "|", "_")
+	;### Replace characters unsafe for cross-platform filenames with underscore, 
+	;### per RetroArch thumbnail/playlist convention
+	fancyname := StrReplace(fancyname, "&apos;", "'")
+	fancyname := StrReplace(fancyname, "&amp;", "_")
+	fancyname := StrReplace(fancyname, "&", "_")
+	fancyname := StrReplace(fancyname, "\", "_")
+	fancyname := StrReplace(fancyname, "/", "_")
+	fancyname := StrReplace(fancyname, "?", "_")
+	fancyname := StrReplace(fancyname, ":", "_")
+	fancyname := StrReplace(fancyname, "<", "_")
+	fancyname := StrReplace(fancyname, ">", "_")
+	fancyname := StrReplace(fancyname, ":", "_")
+	fancyname := StrReplace(fancyname, "*", "_")
+	fancyname := StrReplace(fancyname, "|", "_")
 
-;list = %xx%`n%fancyname% ;for troubleshooting
+	playlistentry = %content%\%filename%.zip`r`n%fancyname%`r`nDETECT`r`nDETECT`r`nDETECT`r`n%Playlist%.lpl`r`n
 
-a =
-(
-%A_LoopFileFullPath%
-%datname1%
-DETECT
-DETECT
--
-%Playlist%.lpl
-)
-if (a_index == 1)
-{
- FileAppend, %a%, %RAPath%\%RAPlayFold%\%Playlist%.lpl
- FileCopy, %MAMESnaps%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Snaps
- FileCopy, %MAMETitles%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Titles
- FileCopy, %MAMEBoxarts%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Boxarts
-}
-else
-{
- FileAppend, `n%a%, %RAPath%\%RAPlayFold%\%Playlist%.lpl
- FileCopy, %MAMESnaps%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Snaps
- FileCopy, %MAMETitles%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Titles
- FileCopy, %MAMEBoxarts%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Boxarts
-}
+	;MsgBox, %playlistentry% ;for troubleshooting
+	
+	playlistfile.Write(playlistentry)
+	FileCopy, %MAMESnaps%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Snaps
+	FileCopy, %MAMETitles%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Titles
+	FileCopy, %MAMEBoxarts%\%datname1%.png, %RAPath%\%RAThumbFold%\%Playlist%\Named_Boxarts
 }
 
-FileSetAttrib, +R, %RAPath%\%RAPlayFold%\%Playlist%.lpl ; add read-only attrib to existing playlist file
+playlistfile.Close()					;## close and flush the new playlist file
+FileSetAttrib, +R, %playlistfilename%	;## add read-only attrib to playlist file
+;## EOF
