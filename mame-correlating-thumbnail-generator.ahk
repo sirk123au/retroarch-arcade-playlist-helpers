@@ -53,6 +53,6 @@ else if (a_index == c)            	;### rom name line
 	{
 		FileAppend, Missing Source: %artsource%\%OutNameNoExt%.png `nDestination: %processed%\%name%.png`n`n, Unmatched Thumbnails - %play%.log
 	}
-    c := c + 6				;skip six lines to the next playlist entry
+    c := c + 6				;### skip six lines to the next playlist entry
     }
 }
