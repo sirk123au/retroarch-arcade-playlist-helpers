@@ -10,12 +10,6 @@ SetWorkingDir %A_ScriptDir%      ; Ensures a consistent starting directory.
 ;### SETUP, ADD YOUR PATHS HERE
 ;### After the initial setup/run you'll only need to change the top 2 variables for subsequent runs
 
-;AUTOHOTKEY SCRIPT TO GENERATE RETROARCH MAME PLAYLISTS W/ SNAP + TITLE IMAGES
-;"Playlist Script"
-
-;### SETUP, ADD YOUR PATHS HERE
-;### After the initial setup/run you'll only need to change the top 2 variables for subsequent runs
-
 content = C:\MAME Roms\Fighting
 ;### Full path of a MAME ROMs folder. 
 ;### If you run this script multiple times with a different folder set here each time you can make 
