@@ -1,28 +1,28 @@
 ;### AUTOHOTKEY SCRIPT TO IMPORT BOXART FOR A PLAYLIST
 
 ;---------------------------------------------------------------------------------------------------------
-#NoEnv  						; Recommended for performance and compatibility with future AutoHotkey releases.
-#Warn  							; Enable warnings to assist with detecting common errors.
-SendMode Input  				; Recommended for new scripts due to its superior speed and reliability.
+#NoEnv  			; Recommended for performance and compatibility with future AutoHotkey releases.
+#Warn  				; Enable warnings to assist with detecting common errors.
+SendMode Input  		; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  	; Ensures a consistent starting directory.
 ;---------------------------------------------------------------------------------------------------------
 
 ;### SETUP: ADD YOUR PATHS HERE
 
-artsource = D:\Emulation\Original ROM Sets\Atari 2600 - Rom Hunter V11 TZ\snapshots
+artsource = D:\MAME 0.78 thumbnails\snapshots
 ;### Path to the source thumbnails folder on the local machine
-;### DO NOT TO INCLUDE A CLOSING SLASH AT THE END OF THE PATH
-;### Example: C:\MAME 0.78 images\titles
+;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THE PATH
+;### Example: D:\MAME 0.78 thumbnails\snapshots
 
-processed = D:\Emulation\Original ROM Sets\Atari 2600 - Rom Hunter V11 TZ\snapshots-processed
+processed = D:\MAME 0.78 thumbnails\Named_Snaps\
 ;### NOTE: THIS FOLDER MUST EXIST BEFORE THE SCRIPT IS EXECUTED
 ;### Path to the destination thumbnail folder on the local machine
-;### DO NOT TO INCLUDE A CLOSING SLASH AT THE END OF THE PATH
-;### Example C:\MAME 0.78 images\Named_Titles
+;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THE PATH
+;### Example D:\MAME 0.78 thumbnails\Named_Snaps\
 
-play = Atari - 2600.lpl
+play = MAME.lpl
 ;### Path to the local copy of the Lakka playlist file, including filename
-;### DO NOT TO INCLUDE A CLOSING SLASH AT THE END OF THE PATH 
+;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THE PATH 
 ;### Example 1: C:\MAME 0.78 Non-Merged\MAME.lpl
 
 if !FileExist(play) or !FileExist(artsource) or !FileExist(processed)
