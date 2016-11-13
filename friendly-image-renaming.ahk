@@ -74,7 +74,7 @@ Loop, Parse, ThumbnailFileList, `n
 	SplitPath, A_LoopField,,,,filename	 ;### trim the file extension from the name
 
 	needle = <game name=.%filename%.(?:| ismechanical=.*)(?:| sourcefile=.*)(?:| cloneof=.*)(?:|  romof=.*)>\R\s*<description>(.*)</description>
-	RegExMatch(datcontents, needle, datname)
+	RegExMatch(datcontents, "U)" needle, datname)
 	
 	fancyname := datname1	;### extract match #1 from the RegExMatch result
 	
