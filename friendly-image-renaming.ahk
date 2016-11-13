@@ -6,6 +6,7 @@
 #Warn  				; Enable warnings to assist with detecting common errors.
 SendMode Input  		; Recommended for new scripts due to its superior speed and reliability.
 SetWorkingDir %A_ScriptDir%  	; Ensures a consistent starting directory.
+SetBatchLines -1		; Never yield the CPU to other processes. Comment this line out if there are CPU utilization issues
 ;---------------------------------------------------------------------------------------------------------
 
 ;### SETUP: ADD YOUR PATHS HERE
@@ -37,6 +38,10 @@ if !FileExist(dat) or !FileExist(artsource) or !FileExist(destinationfolder)
 FileDelete, Unmatched Thumbnails - %dat%.log	;### Delete old 'ummatched' log file, if it exists
 
 FileRead, datcontents, %dat%
+Loop, Parse, datcontents, `n, `r
+ If (InStr(A_LoopField, "<game name=") or InStr(A_LoopReadLine, "<description>"))  ;only keep relevant lines
+  slimdat .= A_LoopField "`n"
+datcontents := slimdat
 
 ThumbnailFileList :=  ; Initialize to be blank.
 Loop, Files, %artsource%\*.png
