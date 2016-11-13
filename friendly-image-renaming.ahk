@@ -39,8 +39,8 @@ FileDelete, Unmatched Thumbnails - %dat%.log	;### Delete old 'ummatched' log fil
 
 FileRead, datcontents, %dat%
 Loop, Parse, datcontents, `n, `r
- If (InStr(A_LoopField, "<game name=") or InStr(A_LoopReadLine, "<description>"))  ;only keep relevant lines
-  slimdat .= A_LoopField "`n"
+ If (InStr(A_LoopField, "<game name=") or InStr(A_LoopField, "<description>"))  ;only keep relevant lines
+ slimdat .= A_LoopField "`n"
 datcontents := slimdat
 
 ThumbnailFileList :=  ; Initialize to be blank.
@@ -55,7 +55,6 @@ Loop, Files, %artsource%\*.png
 	;9970 bytes screenless system
 	;55932 bytes device
 	;57281 bytes mechanical
-	;That leaves ~14K images in pS_snap_fullset_170.zip
 	FileGetSize, s, % A_LoopFileFullPath
 	if (s==57825) or (s==56475) or (s==56467) or (s==53466) or (s==9970) or (s==53472) or (s==55932) or (s==57281)
 	 	continue
