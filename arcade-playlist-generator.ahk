@@ -1,4 +1,5 @@
 ;### AUTOHOTKEY SCRIPT TO GENERATE MAME PLAYLIST FOR LAKKA/RETROARCH
+;### Based on prior work by libretro forum users roldmort, Tetsuya79, Alexandra, and markwkidd
 
 ;---------------------------------------------------------------------------------------------------------
 #NoEnv                          ; Recommended for performance and compatibility with future AutoHotkey releases.
@@ -81,7 +82,6 @@ Loop, Parse, ROMFileList, `n
     fancyname := StrReplace(fancyname, ":", "_")
     fancyname := StrReplace(fancyname, "<", "_")
     fancyname := StrReplace(fancyname, ">", "_")
-    fancyname := StrReplace(fancyname, ":", "_")
     fancyname := StrReplace(fancyname, "*", "_")
     fancyname := StrReplace(fancyname, "|", "_")
 	
