@@ -74,7 +74,7 @@ posi := InStr(datcontents, """" filename """",false,posi) 	;### filename positio
 RegExMatch(datcontents,"U)" needle, datname, posi) 		;### start regex from filename position
 if !datname1
  continue
-fancyname := char(datname1)
+fancyname := character_sanitize(datname1)
 FileCopy, %artsource%\%filename%.png, %destinationfolder%\%fancyname%.png, 1
 }
 
