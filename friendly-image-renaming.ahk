@@ -69,9 +69,13 @@ Loop, Parse, ThumbnailFileList, `n, `r
 {
 if A_LoopField =
     continue
-SplitPath, A_LoopField,,,,filename     				;### trim the file extension from the name
-posi := InStr(datcontents, """" filename """",false,posi) 	;### filename position in datcontents
-RegExMatch(datcontents,"U)" needle, datname, posi) 		;### start regex from filename position
+SplitPath, A_LoopField,,,,filename     					;### trim the file extension from the name
+posi := InStr(datcontents, "game name=""" filename """",false,posi)     ;### find the filename's position in datcontents
+if !posi
+ posi := InStr(datcontents, "game name=""" filename """")
+if !posi
+ continue
+RegExMatch(datcontents,"U)" needle, datname, posi) 			;### start regex from filename position
 if !datname1
  continue
 fancyname := character_sanitize(datname1)
