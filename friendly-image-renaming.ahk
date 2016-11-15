@@ -90,6 +90,7 @@ character_sanitize(x) {						;## fix forbidden chars for multi-platform use
 	x := StrReplace(x, "/", "_")
 	x := StrReplace(x, "?", "_")
 	x := StrReplace(x, ":", "_")
+	x := StrReplace(x, ";", "_")	
 	x := StrReplace(x, "<", "_")
 	x := StrReplace(x, ">", "_")
 	x := StrReplace(x, "*", "_")
