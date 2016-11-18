@@ -60,7 +60,7 @@ Loop, %artsource%\*.png {
 	fancyname := StrReplace(fancyname, "/", "_")
 	fancyname := StrReplace(fancyname, "?", "_")
 	fancyname := StrReplace(fancyname, ":", "_")
-	fancyname := StrReplace(fancyname, ";", "_")
+	fancyname := StrReplace(fancyname, "``", "_")
 	fancyname := StrReplace(fancyname, "<", "_")
 	fancyname := StrReplace(fancyname, ">", "_")
 	fancyname := StrReplace(fancyname, "*", "_")
