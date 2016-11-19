@@ -35,7 +35,7 @@ dat = C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
 if !FileExist(dat) or !FileExist(artsource) or !FileExist(destinationfolder)
 	return 	;### If any of these files and folders desn't exist, exit the script
 
-slimdat := 0	;### Initialize to eliminate warning
+slimdat := 	;### Initialize to eliminate warning
 
 FileRead, datcontents, %dat%
 Loop, Parse, datcontents, `n, `r
