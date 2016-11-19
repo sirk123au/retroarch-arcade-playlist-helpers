@@ -52,11 +52,12 @@ Loop, Files, %artsource%\*.png
 	;56467 bytes device
 	;53466 bytes screenless system
 	;53472 bytes screenless system
+	;53474 bytes screenless system
 	;9970 bytes screenless system
 	;55932 bytes device
 	;57281 bytes mechanical
 	FileGetSize, s, % A_LoopFileFullPath
-	if (s==57825) or (s==56475) or (s==56467) or (s==53466) or (s==9970) or (s==53472) or (s==55932) or (s==57281)
+	if (s==57825) or (s==56475) or (s==56467) or (s==53466) or (s==9970) or (s==53472) or (s==55932) or (s==57281) or (s==53474)
 	 	continue
     	ThumbnailFileList = %ThumbnailFileList%%A_LoopFileName%`n	;### store list of ROMs in memory for searching
 }
