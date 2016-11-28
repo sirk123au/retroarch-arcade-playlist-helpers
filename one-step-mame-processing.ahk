@@ -120,7 +120,7 @@ Loop, Parse, ROMFileList, `n, `r
 		if FileExist(source_image_path) ;### copy from local repository if found
 			FileCopy, %source_image_path%, %local_image_path%
 		else							;### try to retrieve from libretro thumb server
-			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Titles/" . fancyname . ".png", local_image_path, True, True)
+;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Titles/" . fancyname . ".png", local_image_path, True, True)
 	}
 	
 	local_image_path = %RAPath%\thumbnails\%playlist_name%\Named_Snaps\%fancyname%.png
@@ -130,7 +130,7 @@ Loop, Parse, ROMFileList, `n, `r
 		if FileExist(source_image_path) ;### copy from local repository if found
 			FileCopy, %source_image_path%, %local_image_path%
 		else							;### try to retrieve from libretro thumb server
-			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Snaps/" . fancyname . ".png", local_image_path, True, True)
+;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Snaps/" . fancyname . ".png", local_image_path, True, True)
 	}
 	
 	local_image_path = %RAPath%\thumbnails\%playlist_name%\Named_Boxarts\%fancyname%.png
@@ -140,7 +140,7 @@ Loop, Parse, ROMFileList, `n, `r
 		if FileExist(source_image_path) ;### copy from local repository if found
 			FileCopy, %source_image_path%, %local_image_path%
 		else							;### try to retrieve from libretro thumb server
-			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Boxarts/" . fancyname . ".png", local_image_path, True, True)		
+;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Boxarts/" . fancyname . ".png", local_image_path, True, True)		
 	}
 }
 
