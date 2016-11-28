@@ -4,10 +4,10 @@
 ;---------------------------------------------------------------------------------------------------------
 #NoEnv  					;### Recommended for performance and compatibility with future AutoHotkey releases.
 #Warn  						;### Enable warnings to assist with detecting common errors.
-SendMode Input  			;### Recommended for new scripts due to its superior speed and reliability.
-SetWorkingDir %A_ScriptDir% ;### Ensures a consistent starting directory.
-SetBatchLines -1			;### Don't yield CPU to other processes. 
-							;### comment the SetBatchLines command out if there are CPU utilization issues
+SendMode Input  				;### Recommended for new scripts due to its superior speed and reliability.
+SetWorkingDir %A_ScriptDir% 			;### Ensures a consistent starting directory.
+SetBatchLines -1				;### Don't yield CPU to other processes. 
+						;### comment the SetBatchLines command out if there are CPU utilization issues
 ;---------------------------------------------------------------------------------------------------------
 
 ;##########################################################
