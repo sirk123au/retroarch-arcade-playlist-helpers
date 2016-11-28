@@ -39,7 +39,6 @@ playlist_name = Fighting
 local_art_source = C:\libretro-thumbnails\MAME
 ;### Path to the source thumbnails folder on the local machine
 ;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THIS PATH
-;### Example: C:\MAME 0.78 images\titles
 
 RAPath = C:\RetroArch
 ;### Full path of Retroarch root folder  Ex: C:\Emulation\RetroArch
@@ -48,16 +47,15 @@ RAPath = C:\RetroArch
 ;##########################################################
 
 if !FileExist(dat) or !FileExist(rom_directory) or !FileExist(RAPath)
-	return 			;### Exit if any of these files and folders desn't exist
+	return 								;### Exit if these files/folders don't exist
 
-FileCreateDir, %RAPath%\playlists		;### create playlists folder if it doesn't exist
+FileCreateDir, %RAPath%\playlists					;### create playlists subfolder if it doesn't exist
 
 playlist_filename = %RAPath%\playlists\%playlist_name%.lpl
-FileSetAttrib, -R, %playlist_filename% 	;### remove read-only attrib from existing playlist file
-FileDelete, %playlist_filename%        	;### clear existing playlist file
-playlist_file := FileOpen(playlist_filename,"a")		;### Creates new playlist in 'append' mode
+FileDelete, %playlist_filename%      				  	;### clear existing playlist file
+playlist_file := FileOpen(playlist_filename,"a")			;### Creates new playlist in 'append' mode
 
-FileCreateDir, %RAPath%\thumbnails		;### create main thumbnails folder
+FileCreateDir, %RAPath%\thumbnails					;### create main thumbnails folder
 FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Snaps		;### create thumbnail folder
 FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Titles		;### create thumbnail folder
 FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Boxarts	;### create thumbnail folder
@@ -148,7 +146,6 @@ Loop, Parse, ROMFileList, `n, `r
 }
 
 playlist_file.Close()					;## close and flush the new playlist file
-FileSetAttrib, +R, %playlist_filename%	;## add read-only attrib to playlist file
 
 character_sanitize(x) {					;## fix chars for multi-platform use per No-Intro standard
 	x := StrReplace(x, "&apos;", "'")
