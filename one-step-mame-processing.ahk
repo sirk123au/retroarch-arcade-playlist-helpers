@@ -10,8 +10,7 @@ SetBatchLines -1				;### Don't yield CPU to other processes.
 						;### comment the SetBatchLines command out if there are CPU utilization issues
 ;---------------------------------------------------------------------------------------------------------
 
-;##########################################################
-; SET PATHS
+;### PLEASE SET PATHS BELOW
 
 dat = C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
 ;### Example: C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
@@ -44,7 +43,7 @@ RAPath = C:\RetroArch
 ;### Full path of Retroarch root folder  Ex: C:\Emulation\RetroArch
 ;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THIS PATH
 
-;##########################################################
+;---------------------------------------------------------------------------------------------------------
 
 if !FileExist(dat) or !FileExist(rom_directory) or !FileExist(RAPath)
 	return 								;### Exit if these files/folders don't exist
@@ -147,6 +146,11 @@ Loop, Parse, ROMFileList, `n, `r
 
 playlist_file.Close()					;## close and flush the new playlist file
 
+;### End of main script. Functions follow.
+
+
+;---------------------------------------------------------------------------------------------------------
+
 character_sanitize(x) {					;## fix chars for multi-platform use per No-Intro standard
 	x := StrReplace(x, "&apos;", "'")
 	x := StrReplace(x, "&amp;", "_")
@@ -162,6 +166,8 @@ character_sanitize(x) {					;## fix chars for multi-platform use per No-Intro st
 	x := StrReplace(x, "|", "_")
 	return x
 }
+
+;---------------------------------------------------------------------------------------------------------
 
 ;### DownloadFile function by Bruttosozialprodukt with modifications
 DownloadFile(UrlToFile, SaveFileAs, Overwrite := True, UseProgressBar := True) {
