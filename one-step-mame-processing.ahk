@@ -10,25 +10,33 @@ SetBatchLines -1				;### Don't yield CPU to other processes.
 						;### comment the SetBatchLines command out if there are CPU utilization issues
 ;---------------------------------------------------------------------------------------------------------
 
-;### PLEASE SET PATHS BELOW
+;### INITIALIZE GLOBAL VARIABLES
+;### Leave blank to prompt for all values in GUI
+;### Enter values in the script to serve as defaults in GUI
 
-dat = C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
-;### Example: C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
+dat = 
 ;### local path to a MAME ROM database file
 ;### The most recent MAME DAT can be found here  http://www.emulab.it/rommanager/datfiles.php
 ;### DAT files for current and past MAME releases are available at http://www.progettosnaps.net/dats/
 
-base_rom_directory = C:\Emulation\MAME ROMs
+base_rom_directory = 
 ;### Full path of the base MAME ROMs folder. 
 ;### This script will look for subfolders inside this base ROM directory that correspond to
-;### the playlist name below. For example, if individual ROM folders are located within 
-;### folders called C:\Emulation\MAME ROMs\Fighting and C:\Emulation\Driving,
-;### the base_rom_directory would be c:\Emulation\MAME ROMs.
-;### If the ROM files are located in C:\Emulation\MAME, then the base_rom_directory would
+;### the playlist name(s) below. For example, if individual ROM folders are located within 
+;### folders called C:\Emulation\roms\Fighting and C:\Emulation\roms\Driving,
+;### the base_rom_directory would be c:\Emulation\roms
+;### If the ROM files are located in C:\Emulation\roms\MAME, then the base_rom_directory would
 ;### be c:\Emulation
 
-playlist_name = Fighting
-;### Name of playlist, no extension; this determines name of playlist file and name of related 
+use_alternate_rom_path = 0
+;### Trigger to write a different base ROM path into the playlist than is used by AHK
+
+alternate_rom_path = /storage/roms
+;### Location of the primary ROM folder for the RetroArch installation where the playlist(s)
+;### will be used.
+
+playlist_names = 
+;### Name of desired playlist(s) with no extension; this determines name of playlist file and name of related 
 ;### subfolder in RetroArch's thumbnails folder. Ex: Fighting   Ex: Driving   Ex: BeatEmUp
 ;### For instance, Fighting would result in a Fighting.lpl in \playlists and a subfolder called
 ;### \Fighting in \thumbnails
@@ -37,43 +45,77 @@ local_art_source =
 ;### Path to the source thumbnails folder on the local machine. Leave blank if not using a local thumbnail source.
 ;### Example: C:\Emulation\libretro-thumbnails\MAME
 
-RAPath = C:\RetroArch
+RAPath = 
 ;### Full path of Retroarch root folder
 ;### Example: C:\Emulation\RetroArch
 
+attempt_thumbnail_download = 0
+;### Attempt to download missing thumbnails from the RetroArch server. Default is set in the GUI code
+
+unix_filesystem = 0
+;### Use forward slashes instead of backslashes in playlist paths. Use `n rather than `r`n for end of line.
+;### Default is set in the GUI code
+
+path_delimiter = \
+;### Character to deliminate paths in the generated playlists. Defaults to backslash for use with Windows hosts
+
+playlist_eol = `r`n
+;### End of line character. Defaults to `r`n for use with Windows hosts
+
+RA_core_path = DETECT
+;### Optional parameter to manually specify the location of a RetroArch core. Set to DETECT by default.
+
 ;---------------------------------------------------------------------------------------------------------
 
-;PathEntryGUI()
+PathEntryGUI()	;### Prompt the user to enter the configuration 
+WinWaitClose
 
-;### Exit if these files/folders don't exist
+if(unix_filesystem) {
+	path_delimiter = /
+	playlist_eol = `n
+} else
+{
+	path_delimiter = \
+	playlist_eol = `r`n
+}
+
+;## Remove any trailing forward or back slashes from user-provided paths
+StripFinalSlash(RAPath)
+StripFinalSlash(base_rom_directory)
+if (local_art_source <> "")
+{
+	StripFinalSlash(local_art_source)
+}
+
+
+;### Exit if these files/folders don't exist or are set incorrectly
 if !FileExist(dat)
 {
-	MsgBox, DAT file not found:`n%dat%`n`nExiting.
+	MsgBox,,Path Error!, DAT file not found:`n%dat%`n`nExiting.
 	ExitApp
 } else if !FileExist(base_rom_directory)
 {
-	MsgBox, Base ROM directory does not exist:`n%base_rom_directory%`n`nExiting.
+	MsgBox,,Path Error!, Base ROM directory does not exist:`n%base_rom_directory%`n`nExiting.
 	ExitApp
 } else if !FileExist(RAPath)
 {
-	MsgBox, RetroArch directory does not exist:`n%RAPath%`n`nExiting.
+	MsgBox,,Path Error!, RetroArch directory does not exist:`n%RAPath%`n`nExiting.
 	ExitApp
 } else if ((local_art_source <> "") and !FileExist(local_art_source))
 {
-	MsgBox, Local art directory was specified but does not exist:`n%local_art_source%`n`nExiting.
+	MsgBox,,Path Error!, Local art directory was specified but does not exist:`n%local_art_source%`n`nExiting.
 }
 
-;## Remove any trailing slashes from user-provided paths
-no_trailing_slash = 
-SplitPath, RAPath,, no_trailing_slash
-RAPath := no_trailing_slash
-SplitPath, base_rom_directory,, no_trailing_slash
-base_rom_directory := no_trailing_slash
-if (local_art_source <> "")
+Loop, Parse, playlist_names, :,		;### Parse and check the list of playlist names, using colon char as the delimiter
 {
-	SplitPath, local_art_source,, no_trailing_slash
-	local_art_source := no_trailing_slash
+	if !FileExist(base_rom_directory . "\" . A_LoopField)
+	{
+		MsgBox,,Path Error!, Playlist source folder not found:`n%base_rom_directory%\%A_Loopfield%`n`nExiting.
+		ExitApp
+	}
 }
+
+MsgBox,,AHK RetroArch Arcade Playlist Generator,Click OK to begin playlist generation. Another window will open when the process is complete.
 
 FileCreateDir, %RAPath%\playlists					;### create playlists subfolder if it doesn't exist
 FileCreateDir, %RAPath%\thumbnails					;### create main thumbnails folder if it doesn't exist
@@ -88,106 +130,136 @@ Loop, Parse, datcontents, `n, `r
 		
 datcontents := slimdat
 
-
-playlist_filename = %RAPath%\playlists\%playlist_name%.lpl
-FileDelete, %playlist_filename%      				  	;### clear existing playlist file
-playlist_file := FileOpen(playlist_filename,"a")			;### Creates new playlist in 'append' mode
-
-FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Snaps		;### create thumbnail subfolder
-FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Titles		;### create thumbnail subfolder
-FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Boxarts	;### create thumbnail subfolder
-
-ROMFileList :=  ; Initialize to be blank.
-Loop, Files, %base_rom_directory%\%playlist_name%*.zip 
+Loop, Parse, playlist_names, :,		;### Parse and process the list of playlist names, using colon char as the delimiter
 {
-    ROMFileList = %ROMFileList%%A_LoopFileName%`n	;### store list of ROMs in memory for searching
-}
-Sort, ROMFileList
-
-posi = 1
-
-Loop, Parse, ROMFileList, `n, `r
-{
-	if A_LoopField =
-		continue						;### continue on blank line (sometimes the last line in list)
-	SplitPath, A_LoopField,,,,filename				;### trim the file extension from the name
-
-	filter1 = <game name=.%filename%. (isbios|isdevice)
-	if RegExMatch(dat, filter1)
-		continue						;### skip if the file listed as a BIOS or device in the dat
-
-;	;### find the filename's position in datcontents
-;	posi := InStr(datcontents, "game name=""" filename """",false,posi)	
-;	if !posi
-;		posi := InStr(datcontents, "game name=""" filename """")
-;	if !posi
-;		continue
-
-	needle = <game name=.%filename%.(?:| ismechanical=.*)(?:| sourcefile=.*)(?:| cloneof=.*)(?:|  romof=.*)>\R\s*<description>(.*)</description>
-	
-	;### start regex search from filename position		
-    RegExMatch(dat, needle, datname, posi)
-					
-	if !datname1
-		continue
-	fancyname := character_sanitize(datname1)
-
-	playlist_entry = %base_rom_directory%\%playlist_name%\%filename%.zip`r`n%fancyname%`r`nDETECT`r`nDETECT`r`nDETECT`r`n%playlist_name%.lpl`r`n
-
-;	MsgBox, %playlist_entry% 			;### for troubleshooting
-	
-	playlist_file.Write(playlist_entry)
-	
-	;### use local copy of libretro MAME thumbnail database
-	;### and fall back on libretro thumbnail server
-	
-	local_image_path = %RAPath%\thumbnails\%playlist_name%\Named_Titles\%fancyname%.png
-	source_image_path = %local_art_source%\Named_Snaps\%fancyname%.png
-	if !FileExist(local_image_path) 
-	{
-		if FileExist(source_image_path) ;### copy from local repository if found
-		{
-			FileCopy, %source_image_path%, %local_image_path%
-		}
-		else							;### try to retrieve from libretro thumb server
-		{
-;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Titles/" . fancyname . ".png", local_image_path)
-		}
-	}
-	
-	local_image_path = %RAPath%\thumbnails\%playlist_name%\Named_Snaps\%fancyname%.png
-	source_image_path = %local_art_source%\Named_Titles\%fancyname%.png
-	if !FileExist(local_image_path) 
-	{
-		if FileExist(source_image_path) ;### copy from local repository if found
-		{
-			FileCopy, %source_image_path%, %local_image_path%
-		}
-		else							;### try to retrieve from libretro thumb server
-		{
-;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Snaps/" . fancyname . ".png", local_image_path)
-		}
-	}
-	
-	local_image_path = %RAPath%\thumbnails\%playlist_name%\Named_Boxarts\%fancyname%.png
-	source_image_path = %local_art_source%\Named_Boxarts\%fancyname%.png
-	if !FileExist(local_image_path) 
-	{
-		if FileExist(source_image_path) ;### copy from local repository if found
-		{	
-			FileCopy, %source_image_path%, %local_image_path%
-		}
-		else							;### try to retrieve from libretro thumb server
-		{
-;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Boxarts/" . fancyname . ".png", local_image_path)		
-		}
-	}
+	Generator(A_LoopField)
 }
 
-playlist_file.Close()					;## close and flush the new playlist file
+MsgBox,,AHK RetroArch Arcade Playlist Generator,Playlist generation complete. Click OK to exit.
+ExitApp		;### End main function
 
-ExitApp
-;### End of main script. Functions follow.
+
+;---------------------------------------------------------------------------------------------------------
+
+Generator(individual_playlist)
+{
+
+	global dat
+	global base_rom_directory
+	global local_art_source
+	global RAPath
+	global attempt_thumbnail_download
+	global path_delimiter
+	global RA_core_path
+	global playlist_eol
+	global use_alternate_rom_path
+	global alternate_rom_path
+
+	playlist_filename = %RAPath%\playlists\%individual_playlist%.lpl
+	FileDelete, %playlist_filename%      				  		;### clear existing playlist file
+	playlist_file := FileOpen(playlist_filename,"a")			;### Creates new playlist in 'append' mode
+
+	FileCreateDir, %RAPath%\thumbnails\%individual_playlist%\Named_Snaps		;### create thumbnail subfolder
+	FileCreateDir, %RAPath%\thumbnails\%individual_playlist%\Named_Titles		;### create thumbnail subfolder
+	FileCreateDir, %RAPath%\thumbnails\%individual_playlist%\Named_Boxarts		;### create thumbnail subfolder
+
+	ROMFileList =  			;### Initialize to be blank.
+	Loop, Files, %base_rom_directory%\%individual_playlist%\*.zip 
+	{
+	    ROMFileList = %ROMFileList%%A_LoopFileName%`n	;### store list of ROMs in memory for searching
+	}
+	Sort, ROMFileList
+
+	posi = 1
+
+	Loop, Parse, ROMFileList, `n, `r
+	{
+		if A_LoopField =
+			continue						;### continue on blank line (sometimes the last line in list)
+		SplitPath, A_LoopField,,,,filename				;### trim the file extension from the name
+
+		filter1 = <game name=.%filename%. (isbios|isdevice)
+		if RegExMatch(dat, filter1)
+			continue						;### skip if the file listed as a BIOS or device in the dat
+
+	;	;### find the filename's position in datcontents
+	;	posi := InStr(datcontents, "game name=""" filename """",false,posi)	
+	;	if !posi
+	;		posi := InStr(datcontents, "game name=""" filename """")
+	;	if !posi
+	;		continue
+
+		needle = <game name=.%filename%.(?:| ismechanical=.*)(?:| sourcefile=.*)(?:| cloneof=.*)(?:|  romof=.*)>\R\s*<description>(.*)</description>
+		
+		;### start regex search from filename position		
+	    RegExMatch(dat, needle, datname, posi)
+						
+		if !datname1
+			continue
+		fancyname := character_sanitize(datname1)
+
+		if(use_alternate_rom_path) 
+		{
+			playlist_entry_rom_path = %alternate_rom_path%%path_delimiter%%individual_playlist%%path_delimiter%%filename%.zip
+		} else
+		{
+			playlist_entry_rom_path = %base_rom_directory%%path_delimiter%%individual_playlist%%path_delimiter%%filename%.zip
+		}
+
+		playlist_entry = %playlist_entry_rom_path%%playlist_eol%%fancyname%%playlist_eol%%RA_core_path%%playlist_eol%DETECT`r`nDETECT%playlist_eol%%individual_playlist%.lpl%playlist_eol%
+
+	;	MsgBox, %playlist_entry% 			;### for troubleshooting
+		
+		playlist_file.Write(playlist_entry)
+		
+		;### use local copy of libretro MAME thumbnail database
+		;### and fall back on libretro thumbnail server
+		
+		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Titles\%fancyname%.png
+		source_image_path = %local_art_source%\Named_Snaps\%fancyname%.png
+		if !FileExist(local_image_path) 
+		{
+			if FileExist(source_image_path) ;### copy from local repository if found
+			{
+				FileCopy, %source_image_path%, %local_image_path%
+			}
+			else if(attempt_thumbnail_download)							;### try to retrieve from libretro thumb server
+			{
+				DownloadFile("http://thumbnails.libretro.com/MAME/Named_Titles/" . fancyname . ".png", local_image_path)
+			}
+		}
+		
+		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Snaps\%fancyname%.png
+		source_image_path = %local_art_source%\Named_Titles\%fancyname%.png
+		if !FileExist(local_image_path) 
+		{
+			if FileExist(source_image_path) ;### copy from local repository if found
+			{
+				FileCopy, %source_image_path%, %local_image_path%
+			}
+			else if(attempt_thumbnail_download)							;### try to retrieve from libretro thumb server
+			{
+				DownloadFile("http://thumbnails.libretro.com/MAME/Named_Snaps/" . fancyname . ".png", local_image_path)
+			}
+		}
+		
+		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Boxarts\%fancyname%.png
+		source_image_path = %local_art_source%\Named_Boxarts\%fancyname%.png
+		if !FileExist(local_image_path) 
+		{
+			if FileExist(source_image_path) ;### copy from local repository if found
+			{	
+				FileCopy, %source_image_path%, %local_image_path%
+			}
+			else if(attempt_thumbnail_download)							;### try to retrieve from libretro thumb server
+			{
+				DownloadFile("http://thumbnails.libretro.com/MAME/Named_Boxarts/" . fancyname . ".png", local_image_path)		
+			}
+		}
+	}
+
+	playlist_file.Close()					;## close and flush the new playlist file
+}
 
 
 ;---------------------------------------------------------------------------------------------------------
@@ -210,40 +282,113 @@ character_sanitize(x) {					;## fix chars for multi-platform use per No-Intro st
 
 ;---------------------------------------------------------------------------------------------------------
 
-PathEntryGUI()		;### Based on an AutoHotKey example by Tank
+PathEntryGUI()
 {
-	static thisVar, thatVar
-	gui, SomeGuiName: new
+	global dat
+	global base_rom_directory
+	global playlist_names
+	global local_art_source
+	global RAPath
+	global attempt_thumbnail_download
+	global unix_filesystem
+	global RA_core_path
+	global use_alternate_rom_path
+	global alternate_rom_path
+
+	DetectHiddenWindows, Off
+
+	gui, path_entry_window: new
 	gui,Default
 	gui,+LastFound
-	gui, add, groupbox, w250 h130,example
-	gui, add, text, xm12 ym30 section, this Label
-	gui, add, text, xm12 yp+30, that label
-	gui, add, button, yp+30 gDone, Ok
-	gui, add, edit, ys ym30 vthisVar,
-	gui, add, edit, yp+30  vthatVar,
-	gui, add, button, yp+30  gguiclose, cancel
-	gui, show,, gui in a function
-	return winexist()
+	gui, font, s10 w400, Verdana
+
+	gui, font, s12 w700, Verdana
+	gui, add, groupbox, w580 r24,Configure Paths
+
+	;### DAT file location
+	gui, font, s10 w700, Verdana
+	gui, add, text, xm12 ym30 w560, Arcade DAT Location`n
+	gui, font, normal s10 w400, Verdana
+	gui, add, edit, w400 xm12 y+0 vdat, %dat%
+
+	;### ROM storage location
+	gui, font, s10 w700, Verdana
+	gui, add, text, xm12 y+14 w560, Base ROM Directory - Ex: C:\roms
+	gui, font, s10 w400, Verdana
+	gui, add, text, xm12 y+0 w560, The script will look for subfolders inside this base ROM directory that correspond to the playlist name(s) below.
+	gui, add, edit, w400 xm12 y+4 vbase_rom_directory, %base_rom_directory%
+
+	Gui, Add, Checkbox, xm12 y+10 vuse_alternate_rom_path, Use alternate base ROM directory in generated playlist file.`nHelpful for OS X and Linux.
+	gui, add, edit, w400 xm12 y+0 valternate_rom_path, %alternate_rom_path%
+
+
+	;### Playlist names
+	gui, font, s10 w700, Verdana
+	gui, add, text, xm12 y+14  w560, Playlist Name
+	gui, font, s10 w400, Verdana
+	gui, add, text, xm12 y+0 w560, This should be the name of the desired playlist(s) with no extension. This should match the names of the individual ROM folders being used as the source for the playlists.
+	gui, add, edit, w400 xm12 y+0 vplaylist_names, %playlist_names%
+	gui, font, s10 w400 italic, Verdana
+	gui, add, text, xm12 y+0 w560, Note: Multiple playlists may be generated at once. Separate multiple playlist names with a colon (:) character, such as Fighting:Beat 'em Up:Driving
+	gui, font, normal s10 w400, Verdana
+	Gui, Add, Checkbox, xm12 y+12 vunix_filesystem, Create playlist for use with an OS X or Linux RetroArch installation.`nUses forward slashes for paths and ``n for line ends.
+
+	;### Thumbnail settings
+	gui, font, s10 w700, Verdana
+	gui, add, text, xm12 y+14  w560, Path to unzipped libretro thumbnail pack (optional)
+	gui, add, edit, w400 xm12 y+0  vlocal_art_source, %local_art_source%
+	gui, font, normal s10 w700, Verdana
+	Gui, Add, Checkbox, xm12 y+8 vattempt_thumbnail_download, Download missing thumbnails from the RetroArch server
+
+	;### RetroArch path
+	gui, font, s10 w700, Verdana
+	gui, add, text, xm12 y+14  w560, RetroArch path - Ex: C:\RetroArch
+	gui, font, normal s10 w400, Verdana
+	gui, add, edit, w400 xm12 y+0  vRAPath, %RAPath%
+
+	;### Manual RetroArch core path location
+	gui, font, s10 w700, Verdana
+	gui, add, text, xm12 y+14  w560, Direct path to RetroArch core for generated playlists
+	gui, font, normal s10 w400, Verdana
+	gui, add, text, xm12 y+0  w560, Optional. Defaults to 'DETECT'
+	gui, add, edit, w400 xm12 y+0  vRA_core_path, %RA_core_path%
+
+	;### Buttons
+	gui, font, s10 w700, Verdana
+	gui, add, button, w100 xp+240 y+14 gDone, Generate
+	gui, add, button, w100 xp+120 yp gExit, Exit
+
+	gui, show, w600, AHK RetroArch Arcade Playlist Generator
+	return WinExist()
 
 	Done:
 	{
 		gui,submit,nohide
-		ListVars
-		msgbox your values `nthisVar :%thisVar%`nthatVar :%thatVar%
+		gui,destroy
 		return
 	}
 
-	guiclose:
+	path_entry_windowGuiClose:
+	Exit:
 	{
-		gui,destroy
+		Gui path_entry_window:destroy
 		ExitApp
-		return
 	}
 }
 
 ;---------------------------------------------------------------------------------------------------------
+StripFinalSlash(ByRef source_path)
+{
+	last_char = SubStr(source_path,0,1)
 
+	if ((last_char == "\") or (last_char == "/"))
+	{
+		StringTrimRight, source_path, source_path, 1
+	}
+	return
+}
+
+;---------------------------------------------------------------------------------------------------------
 
 ;### DownloadFile function by Bruttosozialprodukt with modifications
 DownloadFile(UrlToFile, SaveFileAs, Overwrite := True, UseProgressBar := True) {
