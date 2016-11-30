@@ -43,20 +43,24 @@ RAPath = C:\RetroArch
 
 ;---------------------------------------------------------------------------------------------------------
 
+;PathEntryGUI()
+
 ;### Exit if these files/folders don't exist
 if !FileExist(dat)
 {
-	MsgBox, Exiting.`nDAT file not found:`n%dat%
+	MsgBox, DAT file not found:`n%dat%`n`nExiting.
 	ExitApp
 } else if !FileExist(base_rom_directory)
 {
-	MsgBox, Exiting.`nBase ROM directory does not exist:`n%base_rom_directory%
+	MsgBox, Base ROM directory does not exist:`n%base_rom_directory%`n`nExiting.
 	ExitApp
 } else if !FileExist(RAPath)
-	MsgBox, Exiting.`nRetroArch directory does not exist:`n%RAPath%
+{
+	MsgBox, RetroArch directory does not exist:`n%RAPath%`n`nExiting.
 	ExitApp
-} else if ((local_art_source <> "") and !FileExist(local_art_source)
-	MsgBox, Exiting.`nLocal art directory was specified but does not exist:`n%local_art_source%
+} else if ((local_art_source <> "") and !FileExist(local_art_source))
+{
+	MsgBox, Local art directory was specified but does not exist:`n%local_art_source%`n`nExiting.
 }
 
 ;## Remove any trailing slashes from user-provided paths
@@ -142,9 +146,13 @@ Loop, Parse, ROMFileList, `n, `r
 	if !FileExist(local_image_path) 
 	{
 		if FileExist(source_image_path) ;### copy from local repository if found
+		{
 			FileCopy, %source_image_path%, %local_image_path%
+		}
 		else							;### try to retrieve from libretro thumb server
-;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Titles/" . fancyname . ".png", local_image_path, True, True)
+		{
+;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Titles/" . fancyname . ".png", local_image_path)
+		}
 	}
 	
 	local_image_path = %RAPath%\thumbnails\%playlist_name%\Named_Snaps\%fancyname%.png
@@ -152,9 +160,13 @@ Loop, Parse, ROMFileList, `n, `r
 	if !FileExist(local_image_path) 
 	{
 		if FileExist(source_image_path) ;### copy from local repository if found
+		{
 			FileCopy, %source_image_path%, %local_image_path%
+		}
 		else							;### try to retrieve from libretro thumb server
-;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Snaps/" . fancyname . ".png", local_image_path, True, True)
+		{
+;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Snaps/" . fancyname . ".png", local_image_path)
+		}
 	}
 	
 	local_image_path = %RAPath%\thumbnails\%playlist_name%\Named_Boxarts\%fancyname%.png
@@ -162,9 +174,13 @@ Loop, Parse, ROMFileList, `n, `r
 	if !FileExist(local_image_path) 
 	{
 		if FileExist(source_image_path) ;### copy from local repository if found
+		{	
 			FileCopy, %source_image_path%, %local_image_path%
+		}
 		else							;### try to retrieve from libretro thumb server
-;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Boxarts/" . fancyname . ".png", local_image_path, True, True)		
+		{
+;			DownloadFile("http://thumbnails.libretro.com/MAME/Named_Boxarts/" . fancyname . ".png", local_image_path)		
+		}
 	}
 }
 
