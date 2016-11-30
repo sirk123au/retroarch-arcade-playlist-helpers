@@ -18,46 +18,61 @@ dat = C:\MAME Roms\~MAME - ROMs (v0.176_XML).dat
 ;### The most recent MAME DAT can be found here  http://www.emulab.it/rommanager/datfiles.php
 ;### DAT files for current and past MAME releases are available at http://www.progettosnaps.net/dats/
 
-rom_directory = C:\MAME ROMs\Fighting
-;### Full path of a MAME ROMs folder. 
-;### If you run this script multiple times with a different folder set here each time you can make 
-;### multiple playlists. For ex., make folders for each genre of ROMs, populate them, and then run 
-;### this script on each folder. Result: One RA playlist for each folder.
+base_rom_directory = C:\Emulation\MAME ROMs
+;### Full path of the base MAME ROMs folder. 
+;### This script will look for subfolders inside this base ROM directory that correspond to
+;### the playlist name below. For example, if individual ROM folders are located within 
+;### folders called C:\Emulation\MAME ROMs\Fighting and C:\Emulation\Driving,
+;### the base_rom_directory would be c:\Emulation\MAME ROMs.
+;### If the ROM files are located in C:\Emulation\MAME, then the base_rom_directory would
+;### be c:\Emulation
 
 playlist_name = Fighting
 ;### Name of playlist, no extension; this determines name of playlist file and name of related 
 ;### subfolder in RetroArch's thumbnails folder. Ex: Fighting   Ex: Driving   Ex: BeatEmUp
 ;### For instance, Fighting would result in a Fighting.lpl in \playlists and a subfolder called
 ;### \Fighting in \thumbnails
-;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THIS PATH
 
-;### TIP: RA displays playlists in alphanumeric order. If you'd like to control the ordering,
-;### prefix each playlist with a number. Ex: 01_Fighting  02_BeatEmUp  03_Action
-;### This has the added bonus of making your icon image filenames conveniently cluster together.
-
-local_art_source = C:\libretro-thumbnails\MAME
-;### Path to the source thumbnails folder on the local machine
-;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THIS PATH
+local_art_source = 
+;### Path to the source thumbnails folder on the local machine. Leave blank if not using a local thumbnail source.
+;### Example: C:\Emulation\libretro-thumbnails\MAME
 
 RAPath = C:\RetroArch
-;### Full path of Retroarch root folder  Ex: C:\Emulation\RetroArch
-;### DO NOT INCLUDE A CLOSING SLASH AT THE END OF THIS PATH
+;### Full path of Retroarch root folder
+;### Example: C:\Emulation\RetroArch
 
 ;---------------------------------------------------------------------------------------------------------
 
-if !FileExist(dat) or !FileExist(rom_directory) or !FileExist(RAPath)
-	return 								;### Exit if these files/folders don't exist
+;### Exit if these files/folders don't exist
+if !FileExist(dat)
+{
+	MsgBox, Exiting.`nDAT file not found:`n%dat%
+	ExitApp
+} else if !FileExist(base_rom_directory)
+{
+	MsgBox, Exiting.`nBase ROM directory does not exist:`n%base_rom_directory%
+	ExitApp
+} else if !FileExist(RAPath)
+	MsgBox, Exiting.`nRetroArch directory does not exist:`n%RAPath%
+	ExitApp
+} else if ((local_art_source <> "") and !FileExist(local_art_source)
+	MsgBox, Exiting.`nLocal art directory was specified but does not exist:`n%local_art_source%
+}
+
+;## Remove any trailing slashes from user-provided paths
+no_trailing_slash = 
+SplitPath, RAPath,, no_trailing_slash
+RAPath := no_trailing_slash
+SplitPath, base_rom_directory,, no_trailing_slash
+base_rom_directory := no_trailing_slash
+if (local_art_source <> "")
+{
+	SplitPath, local_art_source,, no_trailing_slash
+	local_art_source := no_trailing_slash
+}
 
 FileCreateDir, %RAPath%\playlists					;### create playlists subfolder if it doesn't exist
-
-playlist_filename = %RAPath%\playlists\%playlist_name%.lpl
-FileDelete, %playlist_filename%      				  	;### clear existing playlist file
-playlist_file := FileOpen(playlist_filename,"a")			;### Creates new playlist in 'append' mode
-
-FileCreateDir, %RAPath%\thumbnails					;### create main thumbnails folder
-FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Snaps		;### create thumbnail folder
-FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Titles		;### create thumbnail folder
-FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Boxarts	;### create thumbnail folder
+FileCreateDir, %RAPath%\thumbnails					;### create main thumbnails folder if it doesn't exist
 
 FileRead, dat, %dat%
 slimdat := 								;### Initialize to eliminate warning
@@ -69,8 +84,17 @@ Loop, Parse, datcontents, `n, `r
 		
 datcontents := slimdat
 
+
+playlist_filename = %RAPath%\playlists\%playlist_name%.lpl
+FileDelete, %playlist_filename%      				  	;### clear existing playlist file
+playlist_file := FileOpen(playlist_filename,"a")			;### Creates new playlist in 'append' mode
+
+FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Snaps		;### create thumbnail subfolder
+FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Titles		;### create thumbnail subfolder
+FileCreateDir, %RAPath%\thumbnails\%playlist_name%\Named_Boxarts	;### create thumbnail subfolder
+
 ROMFileList :=  ; Initialize to be blank.
-Loop, Files, %rom_directory%\*.zip 
+Loop, Files, %base_rom_directory%\%playlist_name%*.zip 
 {
     ROMFileList = %ROMFileList%%A_LoopFileName%`n	;### store list of ROMs in memory for searching
 }
@@ -82,7 +106,7 @@ Loop, Parse, ROMFileList, `n, `r
 {
 	if A_LoopField =
 		continue						;### continue on blank line (sometimes the last line in list)
-	SplitPath, A_LoopField,,,,filename	;### trim the file extension from the name
+	SplitPath, A_LoopField,,,,filename				;### trim the file extension from the name
 
 	filter1 = <game name=.%filename%. (isbios|isdevice)
 	if RegExMatch(dat, filter1)
@@ -104,7 +128,7 @@ Loop, Parse, ROMFileList, `n, `r
 		continue
 	fancyname := character_sanitize(datname1)
 
-	playlist_entry = %rom_directory%\%filename%.zip`r`n%fancyname%`r`nDETECT`r`nDETECT`r`nDETECT`r`n%playlist_name%.lpl`r`n
+	playlist_entry = %base_rom_directory%\%playlist_name%\%filename%.zip`r`n%fancyname%`r`nDETECT`r`nDETECT`r`nDETECT`r`n%playlist_name%.lpl`r`n
 
 ;	MsgBox, %playlist_entry% 			;### for troubleshooting
 	
@@ -146,6 +170,7 @@ Loop, Parse, ROMFileList, `n, `r
 
 playlist_file.Close()					;## close and flush the new playlist file
 
+ExitApp
 ;### End of main script. Functions follow.
 
 
