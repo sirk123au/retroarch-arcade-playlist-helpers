@@ -340,10 +340,13 @@ PathEntryGUI()
 
 	;### Thumbnail settings
 	gui, font, s10 w700, Verdana
-	gui, add, text, xm12 y+14  w560, Path to unzipped libretro thumbnail pack (optional)
+	gui, add, text, xm12 y+14  w560, Path to unzipped libretro thumbnail pack for MAME (optional)
 	gui, add, edit, w400 xm12 y+0  vlocal_art_source, %local_art_source%
 	gui, font, normal s10 w700, Verdana
-	Gui, Add, Checkbox, xm12 y+8 vattempt_thumbnail_download, Download missing thumbnails from the RetroArch server
+	gui, font, underline
+	gui, add, text, cBlue gLibretroMAMEThumbLink y+0, Click here to download the MAME thumbnail pack via browser.
+	gui, font, normal
+	gui, add, checkbox, xm12 y+4 vattempt_thumbnail_download, Download individual thumbnails from the RetroArch server
 
 	;### RetroArch path
 	gui, font, s10 w700, Verdana
@@ -366,6 +369,11 @@ PathEntryGUI()
 	gui, show, w600, AHK RetroArch Arcade Playlist Generator
 	return WinExist()
 
+	LibretroMAMEThumbLink:
+	{
+		run http://thumbnailpacks.libretro.com/MAME.zip
+		return
+	}
 	Done:
 	{
 		gui,submit,nohide
