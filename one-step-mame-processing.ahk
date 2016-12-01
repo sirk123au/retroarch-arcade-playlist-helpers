@@ -192,12 +192,16 @@ Generator(individual_playlist)
 		needle = <game name=.%filename%.(?:| ismechanical=.*)(?:| sourcefile=.*)(?:| cloneof=.*)(?:|  romof=.*)>\R\s*<description>(.*)</description>
 		
 		;### start regex search from filename position		
-	    RegExMatch(dat, needle, datname, posi)
+	    	RegExMatch(dat, needle, datname, posi)
 						
 		if !datname1
+		{
 			continue
-		fancyname := character_sanitize(datname1)
-
+		} else
+		{
+			fancyname := datname1
+		}
+		
 		if(use_alternate_rom_path) 
 		{
 			playlist_entry_rom_path = %alternate_rom_path%%path_delimiter%%individual_playlist%%path_delimiter%%filename%.zip
@@ -206,17 +210,18 @@ Generator(individual_playlist)
 			playlist_entry_rom_path = %base_rom_directory%%path_delimiter%%individual_playlist%%path_delimiter%%filename%.zip
 		}
 
-		playlist_entry = %playlist_entry_rom_path%%playlist_eol%%fancyname%%playlist_eol%%RA_core_path%%playlist_eol%DETECT`r`nDETECT%playlist_eol%%individual_playlist%.lpl%playlist_eol%
+		playlist_entry = %playlist_entry_rom_path%%playlist_eol%%datname1%%playlist_eol%%RA_core_path%%playlist_eol%DETECT`r`nDETECT%playlist_eol%%individual_playlist%.lpl%playlist_eol%
 
 	;	MsgBox, %playlist_entry% 			;### for troubleshooting
 		
 		playlist_file.Write(playlist_entry)
+
+		sanitized_name := character_sanitize(fancyname)	;### thumbnail filenames must be a 'sanitized' version of the game name
 		
 		;### use local copy of libretro MAME thumbnail database
-		;### and fall back on libretro thumbnail server
-		
-		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Titles\%fancyname%.png
-		source_image_path = %local_art_source%\Named_Snaps\%fancyname%.png
+		;### and fall back on libretro thumbnail server if selected in GUI
+		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Titles\%sanitized_name%.png
+		source_image_path = %local_art_source%\Named_Snaps\%sanitized_name%.png
 		if !FileExist(local_image_path) 
 		{
 			if FileExist(source_image_path) ;### copy from local repository if found
@@ -229,8 +234,8 @@ Generator(individual_playlist)
 			}
 		}
 		
-		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Snaps\%fancyname%.png
-		source_image_path = %local_art_source%\Named_Titles\%fancyname%.png
+		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Snaps\%sanitized_name%.png
+		source_image_path = %local_art_source%\Named_Titles\%sanitized_name%.png
 		if !FileExist(local_image_path) 
 		{
 			if FileExist(source_image_path) ;### copy from local repository if found
@@ -243,8 +248,8 @@ Generator(individual_playlist)
 			}
 		}
 		
-		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Boxarts\%fancyname%.png
-		source_image_path = %local_art_source%\Named_Boxarts\%fancyname%.png
+		local_image_path = %RAPath%\thumbnails\%individual_playlist%\Named_Boxarts\%sanitized_name%.png
+		source_image_path = %local_art_source%\Named_Boxarts\%sanitized_name%.png
 		if !FileExist(local_image_path) 
 		{
 			if FileExist(source_image_path) ;### copy from local repository if found
