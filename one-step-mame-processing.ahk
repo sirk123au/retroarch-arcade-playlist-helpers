@@ -200,6 +200,8 @@ Generator(individual_playlist)
 		} else
 		{
 			fancyname := datname1
+			fancyname := StrReplace(fancyname, "&apos;", "'")		;### remove any URL encoded entities found in the game name
+			fancyname := StrReplace(fancyname, "&amp;", "_")
 		}
 		
 		if(use_alternate_rom_path) 
@@ -270,8 +272,6 @@ Generator(individual_playlist)
 ;---------------------------------------------------------------------------------------------------------
 
 character_sanitize(x) {					;## fix chars for multi-platform use per No-Intro standard
-	x := StrReplace(x, "&apos;", "'")
-	x := StrReplace(x, "&amp;", "_")
 	x := StrReplace(x, "&", "_")
 	x := StrReplace(x, "\", "_")
 	x := StrReplace(x, "/", "_")
@@ -308,11 +308,11 @@ PathEntryGUI()
 	gui, font, s10 w400, Verdana
 
 	gui, font, s12 w700, Verdana
-	gui, add, groupbox, w580 r24,Configure Paths
+	gui, add, groupbox, w580 r23,Configure Paths
 
 	;### DAT file location
 	gui, font, s10 w700, Verdana
-	gui, add, text, xm12 ym30 w560, Arcade DAT Location`n
+	gui, add, text, xm12 ym30 w560, Arcade DAT Location
 	gui, font, normal s10 w400, Verdana
 	gui, add, edit, w400 xm12 y+0 vdat, %dat%
 
@@ -417,7 +417,7 @@ DownloadFile(UrlToFile, SaveFileAs, Overwrite := True, UseProgressBar := True) {
           ;Store the header which holds the file size in a variable:
             FinalSize := WebRequest.GetResponseHeader("Content-Length")
           ;Create the progressbar and the timer
-            Progress, H80, , Downloading..., %UrlToFile%
+            Progress, H120 W700, , Downloading..., %UrlToFile%
             SetTimer, __UpdateProgressBar, 100
       }
     ;Download the file
