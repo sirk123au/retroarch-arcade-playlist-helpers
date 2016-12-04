@@ -55,15 +55,15 @@ global attempt_thumbnail_download := False		;### Default to False
 global attempt_thumbnail_download_label := "Download individual thumbnails from the RetroArch server"
 
 global RA_path := ""
-global RA_path_config_label := "Path to RetroArch installation"
+global RA_path_config_label := "Storage path for local RetroArch thumbnails and playlists"
 ;### RA_path: Full path of Retroarch root folder. Example: C:\Emulation\RetroArch
 
 global RA_core_path := "DETECT"
-global RA_core_path_label := "Direct path to RetroArch core for playlists. Set to DETECT by default."
+global RA_core_path_label := "Direct path to libretro core for generated playlists. Set to DETECT by default."
 
 ;---------------------------------------------------------------------------------------------------------
 
-
+GatherConfigData:
 PathEntryGUI()	;### Prompt the user to enter the configuration 
 WinWaitClose
 
@@ -90,24 +90,25 @@ if (local_art_path <> "")
 ;### Exit if these files/folders don't exist or are set incorrectly
 if !FileExist(dat)
 {
-	MsgBox,,Path Error!, DAT file not found:`n%dat%`n`nExiting.
-	ExitApp
+	MsgBox,,Path Error!, DAT file not found:`n%dat%
+	Goto, GatherConfigData
 } else if !FileExist(base_rom_path) {
-	MsgBox,,Path Error!, Base ROM directory does not exist:`n%base_rom_path%`n`nExiting.
-	ExitApp
+	MsgBox,,Path Error!, Base ROM directory does not exist:`n%base_rom_path%
+	Goto, GatherConfigData
 } else if !FileExist(RA_path) {
-	MsgBox,,Path Error!, RetroArch directory does not exist:`n%RA_path%`n`nExiting.
-	ExitApp
+	MsgBox,,Path Error!, RetroArch directory does not exist:`n%RA_path%
+	Goto, GatherConfigData
 } else if ((local_art_path <> "") and !FileExist(local_art_path)) {
-	MsgBox,,Path Error!, Local art directory was specified but does not exist:`n%local_art_path%`n`nExiting.
+	MsgBox,,Path Error!, Local art directory was specified but does not exist:`n%local_art_path%
+	Goto, GatherConfigData
 }
 
 Loop, Parse, playlist_names, :,		;### Parse and check the list of playlist names, using colon char as the delimiter
 {
 	if !FileExist(base_rom_path . "\" . A_LoopField)
 	{
-		MsgBox,,Path Error!, Playlist source folder not found:`n%base_rom_path%\%A_Loopfield%`n`nExiting.
-		ExitApp
+		MsgBox,,Path Error!, Playlist source folder not found:`n%base_rom_path%\%A_Loopfield%
+		Goto, GatherConfigData
 	}
 }
 
