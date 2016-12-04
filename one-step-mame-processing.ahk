@@ -196,7 +196,7 @@ Generator(individual_playlist)
 			playlist_entry_rom_path = %base_rom_path%%path_delimiter%%individual_playlist%%path_delimiter%%filename%.zip
 		}
 
-		playlist_entry = %playlist_entry_rom_path%%playlist_eol%%datname1%%playlist_eol%%RA_core_path%%playlist_eol%DETECT`r`nDETECT%playlist_eol%%individual_playlist%.lpl%playlist_eol%
+		playlist_entry = %playlist_entry_rom_path%%playlist_eol%%fancyname%%playlist_eol%%RA_core_path%%playlist_eol%DETECT`r`nDETECT%playlist_eol%%individual_playlist%.lpl%playlist_eol%
 
 	;	MsgBox, %playlist_entry% 			;### for troubleshooting
 		
